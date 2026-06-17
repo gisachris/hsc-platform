@@ -31,4 +31,25 @@ async def get_current_user(
         raise credentials_exception
 
     # Infrastructure placeholder - in later milestones this will fetch the database user.
-    return {"id": user_id, "role": "user"}
+    return {"id": user_id, "role": "admin"}  # Default to admin for easier mock testing
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: list[str]):
+        self.allowed_roles = allowed_roles
+
+    async def __call__(self, current_user: dict = Depends(get_current_user)) -> dict:
+        user_role = current_user.get("role", "user")
+        if user_role not in self.allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operation not permitted for current user role",
+            )
+        return current_user
+
+
+RequireAdmin = RoleChecker(["admin"])
+RequireOrganizer = RoleChecker(["admin", "organizer"])
+RequireModerator = RoleChecker(["admin", "organizer", "moderator"])
+RequireSpeaker = RoleChecker(["admin", "organizer", "speaker"])
+
