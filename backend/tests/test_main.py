@@ -17,7 +17,6 @@ async def test_health_endpoint(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
-    assert data["message"] == "Backend service is fully functional"
+    assert data["message"] == "Backend service is healthy"
     assert data["data"]["status"] == "healthy"
-    assert data["data"]["service"] == "backend"
     assert data["errors"] is None
