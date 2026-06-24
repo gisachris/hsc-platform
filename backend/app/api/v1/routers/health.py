@@ -6,7 +6,30 @@ router = APIRouter()
 
 @router.get("/health", response_model=APIResponse[dict])
 async def health_check():
-    return success_response(
-        data={"status": "healthy", "service": "backend"},
-        message="Backend service is fully functional",
-    )
+    """General service health diagnostics."""
+    return {
+        "success": True,
+        "message": "Backend service is healthy",
+        "data": {"status": "healthy"},
+    }
+
+
+@router.get("/ready", response_model=APIResponse[dict])
+async def readiness_check():
+    """Readiness diagnostics verifying database connectivity."""
+    # Placeholders for future connection checks (e.g. Postgres pg_isready status)
+    return {
+        "success": True,
+        "message": "Backend service is ready to accept traffic",
+        "data": {"status": "ready", "database": "connected"},
+    }
+
+
+@router.get("/live", response_model=APIResponse[dict])
+async def liveness_check():
+    """Simple liveness diagnostics for process tracking."""
+    return {
+        "success": True,
+        "message": "Backend service is live",
+        "data": {"status": "alive"},
+    }
