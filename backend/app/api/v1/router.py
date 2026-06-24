@@ -3,7 +3,6 @@ from app.api.v1.routers import (
     analytics,
     attendance,
     audit,
-    auth,
     events,
     health,
     invitations,
@@ -20,11 +19,13 @@ from app.api.v1.routers import (
     users,
 )
 
+from app.modules.authentication.api import router as auth_router
+
 api_router = APIRouter()
 
 # Registering all 18 routers (including health checks)
 api_router.include_router(health.router, tags=["Health Checks"])
-api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(auth_router.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_router.include_router(roles.router, prefix="/roles", tags=["Roles & Permissions"])
 api_router.include_router(
