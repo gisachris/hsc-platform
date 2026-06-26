@@ -22,14 +22,20 @@ class SecurityAndRequestIdMiddleware(BaseHTTPMiddleware):
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time"] = f"{process_time:.4f}s"
 
-        # Security Headers
+        # Security Headers (always applied)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers[
-            "Content-Security-Policy"
-        ] = "default-src 'self'; frame-ancestors 'none';"
+
+        # CSP: skip on docs/redoc/static — Swagger UI requires inline scripts to bootstrap.
+        # Apply the strict policy only on API routes.
+        path = request.url.path
+        is_docs_path = path.endswith("/docs") or path.endswith("/redoc") or path.startswith("/static")
+        if not is_docs_path:
+            response.headers[
+                "Content-Security-Policy"
+            ] = "default-src 'self'; frame-ancestors 'none';"
 
         # 3. Dynamic Response Envelope Enrichment for JSON responses
         content_type = response.headers.get("content-type", "")
